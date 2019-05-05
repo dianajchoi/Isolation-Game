@@ -81,6 +81,7 @@ public class CS420_Game_Isolation_Board
 		{
 			board[cPlayer[0]][cPlayer[1]]='#';
 			cPlayer[0]=row;cPlayer[1]=column;
+			board[row][column]='C';
 			hasMoved=true;
 		}
 		else if(player=='o' && board[row][column]=='-')
@@ -88,6 +89,7 @@ public class CS420_Game_Isolation_Board
 			board[oPlayer[0]][oPlayer[1]]='#'; //replacing old position with #
 			oPlayer[0]=row;oPlayer[1]=column;  //updating to new position
 			hasMoved=true;
+			board[row][column]='O';
 		}
 		return hasMoved;
 	}
