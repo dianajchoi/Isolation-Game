@@ -11,7 +11,7 @@ public class CS420_A3_Choi_Yee_Driver
 		String moveInput;
 		int[] move;
 		CS420_Game_Isolation_Board initial=new CS420_Game_Isolation_Board();
-		System.out.println("Computer vs.  Opponent");
+		System.out.println("Xpponent vs.  Opponent");
 		currPlayer=initial.currPlayer;
 		while(true)
 		{
@@ -21,12 +21,12 @@ public class CS420_A3_Choi_Yee_Driver
 				moved=0;
 			}
 			System.out.println("TURN: "+counterTurn);
-			if(currPlayer=='c')
+			if(currPlayer=='x')
 			{
-				System.out.println("Computer's move is: ");
+				System.out.println("Xpponent's move is: ");
 				moveInput=s.next();
 				move=convertToCoordinates(moveInput);
-				if(initial.move('c',move[0],move[1]))
+				if(initial.move('x',move[0],move[1]))
 				{
 					currPlayer='o';
 					moved+=1;
@@ -41,7 +41,7 @@ public class CS420_A3_Choi_Yee_Driver
 				move=convertToCoordinates(moveInput);
 				if(initial.move('o', move[0], move[1]))
 				{
-					currPlayer='c';
+					currPlayer='x';
 					moved+=1;
 					initial.printBoard();
 				

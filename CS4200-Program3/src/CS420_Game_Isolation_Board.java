@@ -1,15 +1,15 @@
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.Scanner;
 public class CS420_Game_Isolation_Board
 
 {
 	public char[][] board;
-	public int[] cPlayer,oPlayer;  // keep track of position of x and y. position is [row][column]
+	public int[] xPlayer,oPlayer;  // keep track of position of x and y. position is [row][column]
 	//public CS420_Game_Isolation_Board[] parent;				//player[0]=row player[1]=column
 	public char currPlayer;
-	//public LinkedList<CS420_Game_Isolation_Board>offSpring;
+	public ArrayList<state>children;
 	//INITIAL BOARD CONSTRUCTOR 
-	public CS420_Game_Isolation_Board() //take in lower case c for computer, lowercase o for oponent
+	public CS420_Game_Isolation_Board() //take in lower case x for computer, lowercase o for oponent
 	{
 		Scanner s=new Scanner(System.in);
 		char playerToGoFirst;
@@ -35,25 +35,25 @@ public class CS420_Game_Isolation_Board
 		board[7][0]='G';
 		board[8][0]='H';
 		board[0][0]=' '; //end 
-		cPlayer=new int[2];
+		xPlayer=new int[2];
 		oPlayer=new int[2];
 		
 		System.out.println("Please enter the character corresponding to who goes first: C for computer, or O for opponent");
 		playerToGoFirst=Character.toLowerCase(s.next().charAt(0));
-		if(playerToGoFirst=='c')
+		if(playerToGoFirst=='x')
 		{
-			cPlayer[0]=1;cPlayer[1]=1; //intial start if c is first is 1,1 
-			board[1][1]='C';
+			xPlayer[0]=1;xPlayer[1]=1; //intial start if c is first is 1,1 
+			board[1][1]='X';
 			oPlayer[0]=8;oPlayer[1]=8; //initial start is 8,8 
 			board[8][8]='O';
-			currPlayer='c';
+			currPlayer='x';
 		}
 		else
 		{
 			oPlayer[0]=1;oPlayer[1]=1; //intial start if c is first is 1,1 
 			board[1][1]='O';
-			cPlayer[0]=8;cPlayer[1]=8; //initial start is 8,8 
-			board[8][8]='C';
+			xPlayer[0]=8;xPlayer[1]=8; //initial start is 8,8 
+			board[8][8]='X';
 			currPlayer='o';
 		}
 	}
@@ -67,8 +67,8 @@ public class CS420_Game_Isolation_Board
 				board[i][j]=anotherBoard.board[i][j];
 			}
 		}
-		cPlayer[0]=anotherBoard.cPlayer[0];cPlayer[1]=anotherBoard.cPlayer[1];
-		oPlayer[0]=anotherBoard.cPlayer[0];oPlayer[1]=anotherBoard.oPlayer[1];
+		xPlayer[0]=anotherBoard.xPlayer[0];xPlayer[1]=anotherBoard.xPlayer[1];
+		oPlayer[0]=anotherBoard.oPlayer[0];oPlayer[1]=anotherBoard.oPlayer[1];
 	
 	}
 	
@@ -87,8 +87,8 @@ public class CS420_Game_Isolation_Board
 	}
 	public void setC(int row, int column)
 	{
-		cPlayer[0]=row;
-		cPlayer[1]=column;
+		xPlayer[0]=row;
+		xPlayer[1]=column;
 	}
 	public void setO(int row, int column)
 	{
@@ -100,12 +100,12 @@ public class CS420_Game_Isolation_Board
 	{
 		
 		boolean hasMoved=false;
-		boolean possibleMove=canMove(player,newRow,newColumn);
-		if(possibleMove && player=='c') //if here that means have passed all checks for a valid move. 
+		boolean possibleMove=canMove(player,newRow,newColumn); 
+		if(possibleMove && player=='x') //if here that means have passed all checks for a valid move. 
 		{
-			board[cPlayer[0]][cPlayer[1]]='#';   //updating old spot with a # 
-			cPlayer[0]=newRow;cPlayer[1]=newColumn;     
-			board[cPlayer[0]][cPlayer[1]]='C';     //updating boad to show new spot for C 
+			board[xPlayer[0]][xPlayer[1]]='#';   //updating old spot with a # 
+			xPlayer[0]=newRow;xPlayer[1]=newColumn;     
+			board[xPlayer[0]][xPlayer[1]]='X';     //updating boad to show new spot for C 
 			hasMoved=true;
 		}
 		else if(player=='o' && possibleMove)
@@ -118,19 +118,45 @@ public class CS420_Game_Isolation_Board
 		}
 		else
 		{
-			System.out.println("invalid player.");
+			System.out.println("invalid move");
+			
+		}
+		return hasMoved;
+	}
+	//this version of move can be used after checking if it CAN be moved so it skips the check!
+	private boolean move(char player, int newRow, int newColumn,boolean can)
+	{
+		
+		boolean hasMoved=false;
+		if(player=='x') //if here that means have passed all checks for a valid move. 
+		{
+			board[xPlayer[0]][xPlayer[1]]='#';   //updating old spot with a # 
+			xPlayer[0]=newRow;xPlayer[1]=newColumn;     
+			board[xPlayer[0]][xPlayer[1]]='X';     //updating boad to show new spot for C 
+			hasMoved=true;
+		}
+		else if(player=='o')
+		{
+			board[oPlayer[0]][oPlayer[1]]='#';
+			oPlayer[0]=newRow;oPlayer[1]=newColumn;
+			board[oPlayer[0]][oPlayer[1]]='O';
+			hasMoved=true;
 			
 		}
 		return hasMoved;
 	}
 	public boolean canMove(char player, int newRow,int newColumn)
 	{
+		if(newRow<1 || newRow>8 || newColumn<1 || newColumn<8) //CHECKING IF OUT OF BOUNDS
+		{
+			return false;
+		}
 		System.out.println("newRow: "+newRow);
 		boolean hasMoved=true;
 		int rowPlacement,columnPlacement,rowDistance,columnDistance;
-		if(player=='c')
+		if(player=='x')
 		{
-			rowPlacement=cPlayer[0];columnPlacement=cPlayer[1];
+			rowPlacement=xPlayer[0];columnPlacement=xPlayer[1];
 		}
 		else
 		{
@@ -146,7 +172,7 @@ public class CS420_Game_Isolation_Board
 		else if(rowPlacement<newRow && columnPlacement==newColumn) //moving player down, checking path till reach up
 		{
 			System.out.println("rowDistance: " + rowDistance);
-			for(int i=0;i<rowDistance;i++)
+			for(int i=1;i<rowDistance;i++)
 			{
 				if(board[newRow-i][columnPlacement]!='-')
 				{
@@ -247,16 +273,16 @@ public class CS420_Game_Isolation_Board
 		return hasMoved;
 	}
 	
-	public boolean hasLost(char player)
+	public boolean hasLost(char player) 
 	{
 		int currRow;int currColumn;
-		if(player=='c')
+		if(player=='x')
 		{
-			currRow=cPlayer[0];currColumn=cPlayer[1];
+			currRow=xPlayer[0];currColumn=xPlayer[1];
 		}
 		else
 		{
-			currRow=oPlayer[0];currColumn=cPlayer[1];
+			currRow=oPlayer[0];currColumn=xPlayer[1];
 		}
 		for(int i=-1;i<2;i++)
 		{
@@ -276,6 +302,78 @@ public class CS420_Game_Isolation_Board
 		}
 		return true;  //if reach here then that means any surrounding square that we could be able to move to is used or occupied by opponent
 	}
+	
+	//WILL GENERATE POTENTIAL MOVES AND RETURN IT AS ARRAYLIST OF OUR STATE NODES (the score parameter is empty for now) WE WILL USE EVAL FUNCTION TO FIX
+	public ArrayList<state> genStates(char player, int row,int column, int depth)
+	{
+		ArrayList<state>offSpring=new ArrayList<state>();
+		int rowPlacement,columnPlacement;
+		if(player=='x')
+		{
+			rowPlacement=xPlayer[0];columnPlacement=xPlayer[1];
+			
+		}
+		else
+		{
+			rowPlacement=oPlayer[0];columnPlacement=oPlayer[1];
+		}
+		rowPlacement+=1;columnPlacement+=1;
+		CS420_Game_Isolation_Board newState=null;
+		for(int i= -depth;i<depth+1;i++)
+		{
+			for(int j=-depth;j<depth+1;j++)
+			{
+				if(i!=0 || j!=0) //as long as not in same position
+				{
+					//GENERATING POSSIbLE STATES GIVEN DEPTH
+					rowPlacement-=1;columnPlacement-=1;
+					if(canMove(player,rowPlacement,columnPlacement))
+					{
+						newState=new CS420_Game_Isolation_Board(this); //make copy
+						newState.move(player, rowPlacement+i+1,columnPlacement+j+1,true);
+					}
+					else
+					{
+						newState=null;
+					}
+					
+					
+					if(newState!=null)
+					{
+						offSpring.add(new state(newState));
+					}
+				}
+			}
+		}
+		return offSpring;
+		
+	}
+	//heuristic used will be avaialable white spaces
+	public int heuristic(char player)
+	{
+		int empty=0;
+		int rowPlacement,columnPlacement;
+		if(player=='x')
+		{
+			rowPlacement=xPlayer[0];columnPlacement=xPlayer[1];
+		}
+		else
+		{
+			rowPlacement=oPlayer[0];columnPlacement=oPlayer[1];
+		}
+		
+	}
+	private class state  //will be like node 
+	{
+		CS420_Game_Isolation_Board nodeBoard;
+		int score; 
+		public state(CS420_Game_Isolation_Board board)
+		{
+			nodeBoard=new CS420_Game_Isolation_Board(board);
+			score=0;
+		}
+	}
+	
 	
 }
 
