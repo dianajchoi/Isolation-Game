@@ -54,6 +54,7 @@ public class CS420_Game_Isolation_Board
 	
 	public void printBoard()
 	{
+		System.out.println();
 		for(int i=0;i<board.length;i++)
 		{
 			for(int j=0;j<board.length;j++)
@@ -62,6 +63,7 @@ public class CS420_Game_Isolation_Board
 			}
 			System.out.println();
 		}
+		System.out.println();
 	}
 	public void setC(int row, int column)
 	{
@@ -74,22 +76,150 @@ public class CS420_Game_Isolation_Board
 		oPlayer[1]=column;
 	}
 	//only moves if the specified area has no # or if the other player is not occupying the space 
-	public boolean move(char player, int row, int column)
+	public boolean move(char player, int newRow, int newColumn)
 	{
-		boolean hasMoved=false;
-		if(player=='c' && board[row][column]=='-')
+		if(newRow<1 || newRow>8 || newColumn<1 ||newColumn>8)
 		{
-			board[cPlayer[0]][cPlayer[1]]='#';
-			cPlayer[0]=row;cPlayer[1]=column;
-			board[row][column]='C';
+			System.out.println("The specified move is not within the board indexes.");
+			return false;
+		}
+				
+		boolean hasMoved=false;
+		int rowPlacement,columnPlacement,rowDistance,columnDistance;
+		if(player=='c')
+		{
+			rowPlacement=cPlayer[0];columnPlacement=cPlayer[1];
+		}
+		else
+		{
+			rowPlacement=oPlayer[0];columnPlacement=oPlayer[1];
+		}
+		
+		rowDistance=Math.abs(newRow-rowPlacement);columnDistance=Math.abs(newColumn-columnPlacement);
+		if(rowPlacement==newRow && columnPlacement==newColumn) //if in same position, return not moved
+		{
+			return false;
+		}
+		
+		else if(rowPlacement<newRow && columnPlacement==newColumn) //moving player up, checking path till reach up
+		{
+			for(int i=1;i<=rowDistance;i++)
+			{
+				if(board[newRow-i][columnPlacement]!='-')
+				{
+					System.out.println("Path obstructed, cant move up");
+					return false;
+				}
+			}
+		}
+		
+		else if(rowPlacement>newRow && columnPlacement==newColumn) //moving player down, so check path till reach down 
+		{
+			for(int i=1;i<rowDistance;i++)
+			{
+				if(board[newRow+i][columnPlacement]!='-')
+				{
+					System.out.println("Path obstructed, cant move down");
+					return false;
+				}
+			}
+		}
+		
+		else if(rowPlacement==newRow && columnPlacement>newColumn)  //moving player left...
+		{
+			for(int i=1;i<columnDistance;i++)
+			{
+				if(board[rowPlacement][newColumn+i]!='-')
+				{
+					System.out.println("Path obstructed, cant move left");
+					return false;
+				}
+			}
+		}
+		
+		else if(rowPlacement==newRow && columnPlacement<newColumn) //moving right...
+		{
+			for(int i=1;i<columnDistance;i++)
+			{
+				if(board[rowPlacement][newColumn-i]!='-')
+				{
+					System.out.println("Path obstructed, cant move right");
+					return false;
+				}
+			}
+		}
+		else if(rowDistance==columnDistance) 
+		{
+			if(newRow<rowPlacement && newColumn<columnPlacement)  //checking diagnal up left 
+			{
+				for(int i=1;i<=rowDistance;i++)
+				{
+					if(board[rowPlacement-i][columnPlacement-i]!='-')
+					{
+						System.out.println("Path obstructed, cant move diagnal up left");
+						return false;
+					}
+				}
+			}
+			else if(newRow > rowPlacement && newColumn < columnPlacement) //checking diagnal down left
+			{
+				for(int i=1;i<=rowDistance;i++)
+				{
+					if(board[rowPlacement+i][columnPlacement-i]!='-')
+					{
+						System.out.println("Path obstructed, cant move diaganal down left");
+						return false;
+					}
+				}
+			}
+			else if(newRow<rowPlacement && newColumn>columnPlacement) //checking diagnal up right
+			{
+				for(int i=1;i<=rowDistance;i++)
+				{
+					if(board[rowPlacement-i][columnPlacement+i]!='-')
+					{
+						System.out.println("Path obstructed, cant move diagnal up right");
+						return false;
+					}
+				}
+			}
+			else if(newRow>rowPlacement && newColumn>columnPlacement)  //checking down right diagnal
+			{
+				for(int i=1;i<=rowDistance;i++)
+				{
+					if(board[rowPlacement+i][columnPlacement+i]!='-')
+					{
+						System.out.println("Path obstructed, cant move diagnal down right");
+						return false;
+					}
+				}
+			}
+			
+		}
+		else
+		{
+			System.out.println("invalid move at:    ROW: "+newRow+"  COLUMN: "+newColumn);
+			return false;
+		}
+		if(player=='c') //if here that means have passed all checks for a valid move. 
+		{
+			board[cPlayer[0]][cPlayer[1]]='#';   //updating old spot with a # 
+			cPlayer[0]=newRow;cPlayer[1]=newColumn;     
+			board[cPlayer[0]][cPlayer[1]]='C';     //updating boad to show new spot for C 
 			hasMoved=true;
 		}
-		else if(player=='o' && board[row][column]=='-')
+		else if(player=='o')
 		{
-			board[oPlayer[0]][oPlayer[1]]='#'; //replacing old position with #
-			oPlayer[0]=row;oPlayer[1]=column;  //updating to new position
+			board[oPlayer[0]][oPlayer[1]]='#';
+			oPlayer[0]=newRow;oPlayer[1]=newColumn;
+			board[oPlayer[0]][oPlayer[1]]='O';
 			hasMoved=true;
-			board[row][column]='O';
+			
+		}
+		else
+		{
+			System.out.println("invalid player.");
+			
 		}
 		return hasMoved;
 	}
