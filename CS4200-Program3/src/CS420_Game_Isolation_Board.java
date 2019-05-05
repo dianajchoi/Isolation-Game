@@ -1,10 +1,14 @@
+import java.util.LinkedList;
 import java.util.Scanner;
 public class CS420_Game_Isolation_Board
 
 {
 	public char[][] board;
 	public int[] cPlayer,oPlayer;  // keep track of position of x and y. position is [row][column]
-									//player[0]=row player[1]=column
+	//public CS420_Game_Isolation_Board[] parent;				//player[0]=row player[1]=column
+	public char currPlayer;
+	//public LinkedList<CS420_Game_Isolation_Board>offSpring;
+	//INITIAL BOARD CONSTRUCTOR 
 	public CS420_Game_Isolation_Board() //take in lower case c for computer, lowercase o for oponent
 	{
 		Scanner s=new Scanner(System.in);
@@ -42,6 +46,7 @@ public class CS420_Game_Isolation_Board
 			board[1][1]='C';
 			oPlayer[0]=8;oPlayer[1]=8; //initial start is 8,8 
 			board[8][8]='O';
+			currPlayer='c';
 		}
 		else
 		{
@@ -49,7 +54,22 @@ public class CS420_Game_Isolation_Board
 			board[1][1]='O';
 			cPlayer[0]=8;cPlayer[1]=8; //initial start is 8,8 
 			board[8][8]='C';
+			currPlayer='o';
 		}
+	}
+	public CS420_Game_Isolation_Board(CS420_Game_Isolation_Board anotherBoard) //take in lower case c for computer, lowercase o for oponent
+	{
+		board=new char[9][9];
+		for(int i=0;i<anotherBoard.board.length;i++)
+		{
+			for(int j=0;j<anotherBoard.board.length;j++)
+			{
+				board[i][j]=anotherBoard.board[i][j];
+			}
+		}
+		cPlayer[0]=anotherBoard.cPlayer[0];cPlayer[1]=anotherBoard.cPlayer[1];
+		oPlayer[0]=anotherBoard.cPlayer[0];oPlayer[1]=anotherBoard.oPlayer[1];
+	
 	}
 	
 	public void printBoard()
@@ -78,13 +98,35 @@ public class CS420_Game_Isolation_Board
 	//only moves if the specified area has no # or if the other player is not occupying the space 
 	public boolean move(char player, int newRow, int newColumn)
 	{
-		if(newRow<1 || newRow>8 || newColumn<1 ||newColumn>8)
-		{
-			System.out.println("The specified move is not within the board indexes.");
-			return false;
-		}
-				
+		
 		boolean hasMoved=false;
+		boolean possibleMove=canMove(player,newRow,newColumn);
+		if(possibleMove && player=='c') //if here that means have passed all checks for a valid move. 
+		{
+			board[cPlayer[0]][cPlayer[1]]='#';   //updating old spot with a # 
+			cPlayer[0]=newRow;cPlayer[1]=newColumn;     
+			board[cPlayer[0]][cPlayer[1]]='C';     //updating boad to show new spot for C 
+			hasMoved=true;
+		}
+		else if(player=='o' && possibleMove)
+		{
+			board[oPlayer[0]][oPlayer[1]]='#';
+			oPlayer[0]=newRow;oPlayer[1]=newColumn;
+			board[oPlayer[0]][oPlayer[1]]='O';
+			hasMoved=true;
+			
+		}
+		else
+		{
+			System.out.println("invalid player.");
+			
+		}
+		return hasMoved;
+	}
+	public boolean canMove(char player, int newRow,int newColumn)
+	{
+		System.out.println("newRow: "+newRow);
+		boolean hasMoved=true;
 		int rowPlacement,columnPlacement,rowDistance,columnDistance;
 		if(player=='c')
 		{
@@ -101,25 +143,26 @@ public class CS420_Game_Isolation_Board
 			return false;
 		}
 		
-		else if(rowPlacement<newRow && columnPlacement==newColumn) //moving player up, checking path till reach up
+		else if(rowPlacement<newRow && columnPlacement==newColumn) //moving player down, checking path till reach up
 		{
-			for(int i=1;i<=rowDistance;i++)
+			System.out.println("rowDistance: " + rowDistance);
+			for(int i=0;i<rowDistance;i++)
 			{
 				if(board[newRow-i][columnPlacement]!='-')
 				{
-					System.out.println("Path obstructed, cant move up");
+					System.out.println("Path obstructed, cant move down");
 					return false;
 				}
 			}
 		}
 		
-		else if(rowPlacement>newRow && columnPlacement==newColumn) //moving player down, so check path till reach down 
+		else if(rowPlacement>newRow && columnPlacement==newColumn) //moving player up, so check path till reach down 
 		{
 			for(int i=1;i<rowDistance;i++)
 			{
 				if(board[newRow+i][columnPlacement]!='-')
 				{
-					System.out.println("Path obstructed, cant move down");
+					System.out.println("Path obstructed, cant move up");
 					return false;
 				}
 			}
@@ -201,26 +244,38 @@ public class CS420_Game_Isolation_Board
 			System.out.println("invalid move at:    ROW: "+newRow+"  COLUMN: "+newColumn);
 			return false;
 		}
-		if(player=='c') //if here that means have passed all checks for a valid move. 
+		return hasMoved;
+	}
+	
+	public boolean hasLost(char player)
+	{
+		int currRow;int currColumn;
+		if(player=='c')
 		{
-			board[cPlayer[0]][cPlayer[1]]='#';   //updating old spot with a # 
-			cPlayer[0]=newRow;cPlayer[1]=newColumn;     
-			board[cPlayer[0]][cPlayer[1]]='C';     //updating boad to show new spot for C 
-			hasMoved=true;
-		}
-		else if(player=='o')
-		{
-			board[oPlayer[0]][oPlayer[1]]='#';
-			oPlayer[0]=newRow;oPlayer[1]=newColumn;
-			board[oPlayer[0]][oPlayer[1]]='O';
-			hasMoved=true;
-			
+			currRow=cPlayer[0];currColumn=cPlayer[1];
 		}
 		else
 		{
-			System.out.println("invalid player.");
-			
+			currRow=oPlayer[0];currColumn=cPlayer[1];
 		}
-		return hasMoved;
+		for(int i=-1;i<2;i++)
+		{
+			for(int j=-1;j<2;j++)
+			{
+				if(i!=0 || j!=0)  //we ignore curr placement so i and j cannot both be equal to 0
+				{
+					if(currRow+i<9 && currRow+i>0 && currColumn+j<9 && currColumn+j>0)//if within the boundaries of the playable board
+					{
+						if(board[currRow+i][currColumn+j]=='-')  //if there is empty space we still can move 
+						{
+							return false;
+						}
+					}
+				}
+			}
+		}
+		return true;  //if reach here then that means any surrounding square that we could be able to move to is used or occupied by opponent
 	}
+	
 }
+
