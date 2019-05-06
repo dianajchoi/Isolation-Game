@@ -481,4 +481,6 @@ public class Board {
 			else
 				nodeBoard=new Board(board);
 			score=0;
+		}
+	}
 }
