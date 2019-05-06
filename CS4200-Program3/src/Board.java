@@ -9,7 +9,7 @@ public class Board {
 	public char currPlayer;
 	public ArrayList<State>children;
 	public static MyStopwatch sw;
-	
+	public int givenTime;
 	//INITIAL BOARD CONSTRUCTOR 
 	public Board() //take in lower case x for computer, lower case o for opponent
 	{
@@ -63,6 +63,8 @@ public class Board {
 			board[8][8]='X';
 			currPlayer='o';
 		}
+		System.out.println("Please enter the time limit per move in seconds: ");
+		givenTime=s.nextInt();
 	}
 	
 	public Board(Board anotherBoard) //take in lower case c for computer, lower case o for opponent
@@ -456,7 +458,7 @@ public class Board {
 				return s;
 			}
 			moves.remove(0);
-			if(sw.counter > 20) {
+			if(sw.counter > givenTime) {
 				s = new State(currentBestMove);
 				s.score = currentMax;
 				return s;
@@ -479,6 +481,4 @@ public class Board {
 			else
 				nodeBoard=new Board(board);
 			score=0;
-		}
-	}
 }
