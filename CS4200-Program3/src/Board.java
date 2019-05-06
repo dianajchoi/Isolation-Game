@@ -332,7 +332,6 @@ public class Board {
 		{
 			rowPlacement=oPlayer[0];columnPlacement=oPlayer[1];
 		}
-		//rowPlacement+=1;columnPlacement+=1;
 		Board newState=null;
 		for(int i= -depth;i<depth+1;i++)
 		{
@@ -341,11 +340,10 @@ public class Board {
 				if(i!=0 || j!=0) //as long as not in same position
 				{
 					//GENERATING POSSIBLE STATES GIVEN DEPTH
-					//rowPlacement-=1;columnPlacement-=1;
 					if(canMove(player,rowPlacement + i,columnPlacement + j))
 					{
 						newState=new Board(this); //make copy
-						newState.move(player, rowPlacement+i/*+1*/,columnPlacement+j/*+1*/,true);
+						newState.move(player, rowPlacement+i,columnPlacement+j,true);
 					}
 					else
 					{
