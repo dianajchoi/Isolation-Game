@@ -31,7 +31,7 @@ public class Driver {
 				System.out.println("====================");
 				for(turn thisTurn: history)
 				{
-					System.out.println("Turn: "+thisTurn.turn+ "  CPU move: "+thisTurn.cpuMove+"  Opponent move: "+thisTurn.opponentMove+"\n");
+					System.out.println("Turn: "+thisTurn.turn+ "  CPU move: "+thisTurn.cpuMove+"  Opponent move: "+thisTurn.opponentMove/*+"\n"*/);
 				}
 				System.out.println();
 				counterTurn+=1;
@@ -49,6 +49,10 @@ public class Driver {
 					moved+=1;
 					initial.printBoard();
 				}*/
+				if(initial.hasLost('x')) {
+					System.out.println("O has won!");
+					return;
+				}
 				
 				System.out.println("Computer1 choosing move...");
 				initial = initial.findNextBestMove(7, -Integer.MAX_VALUE, Integer.MAX_VALUE, 'x').nodeBoard;
@@ -63,6 +67,10 @@ public class Driver {
 			}
 			else if(currPlayer=='o')
 			{
+				if(initial.hasLost('o')) {
+					System.out.println("X has won!");
+					return;
+				}
 				System.out.println("Enter opponent's move: ");
 				moveInput=s.next();
 				move=convertToCoordinates(moveInput);
@@ -79,16 +87,7 @@ public class Driver {
 //				currPlayer = 'x';
 //				moved += 1;
 //				initial.printBoard();
-			}
-			
-			if(initial.hasLost('x')) {
-				System.out.println("O has won!");
-				return;
-			}else if(initial.hasLost('o')) {
-				System.out.println("X has won!");
-				return;
-			}
-				
+			}	
 		}
 	}
 	
